@@ -25,6 +25,8 @@ const pinchZoom = (imageElement) => {
 
   imageElement.addEventListener("touchmove", (event) => {
     // console.log('touchmove', event);
+    console.log(event);
+    document.querySelector(".fe");
     if (event.touches.length === 2) {
       event.preventDefault(); // Prevent page scroll
 
@@ -55,3 +57,47 @@ const pinchZoom = (imageElement) => {
   });
 };
 pinchZoom(document.querySelector("img"));
+
+const log = function (a) {
+  document.querySelector(".feedback2").innerHTML = a;
+};
+function pointermoveHandler(ev) {
+  // This function implements a 2-pointer horizontal pinch/zoom gesture.
+  //
+  // If the distance between the two pointers has increased (zoom in),
+  // the target element's background is changed to "pink" and if the
+  // distance is decreasing (zoom out), the color is changed to "lightblue".
+  //
+  // This function sets the target element's border to "dashed" to visually
+  // indicate the pointer's target received a move event.
+  log("pointerMove", ev);
+  ev.target.style.border = "dashed";
+
+  // Find this event in the cache and update its record with this event
+  const index = evCache.findIndex(
+    (cachedEv) => cachedEv.pointerId === ev.pointerId
+  );
+  evCache[index] = ev;
+
+  // If two pointers are down, check for pinch gestures
+  if (evCache.length === 2) {
+    // Calculate the distance between the two pointers
+    const curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
+
+    if (prevDiff > 0) {
+      if (curDiff > prevDiff) {
+        // The distance between the two pointers has increased
+        log("Pinch moving OUT -> Zoom in", ev);
+        ev.target.style.background = "pink";
+      }
+      if (curDiff < prevDiff) {
+        // The distance between the two pointers has decreased
+        log("Pinch moving IN -> Zoom out", ev);
+        ev.target.style.background = "lightblue";
+      }
+    }
+
+    // Cache the distance for the next move event
+    prevDiff = curDiff;
+  }
+}
